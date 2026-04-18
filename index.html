@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UNIQUS FT — Leadership Dashboard</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.12.7/Recharts.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #a1a1a1; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+    const { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, CartesianGrid } = Recharts;
+
+
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const WINS_RAW = [{"id":1,"client":"Biocon Biologics Limited","service":"Other","desc":"US GTN review","currency":"INR","winLocalCcy":11000872,"winUSD":121009.59,"year":2025,"proposalDate":"2024-07-23","winDate":"2025-01-30","startDate":"","endDate":"2025-08-31","partner":"Shashikant S","spoc":"Unassigned","location":"Bengaluru","region":"India","monthly":{"Feb-25":28864,"Mar-25":28864,"Apr-25":28864,"May-25":28864,"Aug-25":5553.59}},{"id":3,"client":"Bahri Shipping","service":"Implementation Support","desc":"Finance Transformation Implementation (functional)","currency":"USD","winLocalCcy":425000,"winUSD":425000,"year":2025,"proposalDate":"2025-01-01","winDate":"2025-01-01","startDate":"","endDate":"2025-08-30","partner":"Dinesh J","spoc":"Arpan S","location":"KSA","region":"ME","monthly":{"Feb-25":70000,"Mar-25":70000,"Apr-25":100000,"May-25":80000,"Jun-25":76666,"Jul-25":14166.5,"Aug-25":14166.5}},{"id":4,"client":"NEOM","service":"Fixed Asset Register","desc":"Fixed Asset Register - Phase 1","currency":"SAR","winLocalCcy":null,"winUSD":90249.87,"year":2025,"proposalDate":"","winDate":"2025-11-03","startDate":"","endDate":"","partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","monthly":{"Feb-26":3000,"Mar-26":6666.67,"Jun-26":40291.73,"Jul-26":40291.73}},{"id":5,"client":"Spimaco","service":"Maturity Assessment","desc":"Finance Maturity Assessment","currency":"SAR","winLocalCcy":null,"winUSD":53018.37,"year":2025,"proposalDate":"","winDate":"2025-02-28","startDate":"","endDate":"","partner":"Dinesh J, Shashikant S","spoc":"Dhaval P","location":"KSA","region":"ME","monthly":{"Mar-25":35012.13,"Apr-25":18006.24}},{"id":6,"client":"King Faisal Hospital","service":"Maturity Assessment","desc":"Finance Function Maturity Assessment","currency":"SAR","winLocalCcy":null,"winUSD":95032.93,"year":2025,"proposalDate":"","winDate":"2025-04-21","startDate":"","endDate":"","partner":"Dinesh J","spoc":"Dhaval P","location":"KSA","region":"ME","monthly":{"Jul-25":30010.4,"Aug-25":30010.4,"Oct-25":35012.13}},{"id":7,"client":"HCG Hospitals","service":"Other","desc":"Loan staffing- AM","currency":"INR","winLocalCcy":null,"winUSD":15260.17,"year":2025,"proposalDate":"","winDate":"2025-03-30","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Bengaluru","region":"India","monthly":{"Apr-25":4893.9,"May-25":4893.9,"Aug-25":5472.37}},{"id":9,"client":"Quess Corp","service":"Other","desc":"Government receivables","currency":"INR","winLocalCcy":null,"winUSD":22000,"year":2025,"proposalDate":"","winDate":"2025-03-15","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","monthly":{"May-25":22000}},{"id":10,"client":"Saudi Olympic Committee","service":"Fixed Asset Register","desc":"Fixed Asset Remediation","currency":"SAR","winLocalCcy":null,"winUSD":50017.33,"year":2025,"proposalDate":"","winDate":"2025-07-06","startDate":"","endDate":"","partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","monthly":{"Jul-25":5001.73,"Aug-25":22507.8,"Sep-25":17506.07,"Oct-25":1667.24,"Dec-25":1667.2,"Jan-26":1667.2}},{"id":11,"client":"Hikma Pharmaceuticals Plc","service":"CoE Setup","desc":"F&A transition to COE team (USA - FRP, Treasury and Discounts)","currency":"USD","winLocalCcy":125000,"winUSD":125000,"year":2025,"proposalDate":"","winDate":"2025-04-23","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vishal K","location":"Others","region":"ME","monthly":{"May-25":65000,"Jun-25":40000,"Jul-25":10000,"Sep-25":10000}},{"id":12,"client":"King Faisal Hospital","service":"FP&A Transformation","desc":"Financial Model - Dashboarding","currency":"SAR","winLocalCcy":null,"winUSD":65022.53,"year":2025,"proposalDate":"","winDate":"2025-04-21","startDate":"","endDate":"","partner":"Dinesh J, Tarandeep B","spoc":"Dhaval P","location":"KSA","region":"ME","monthly":{"Jun-25":25008.67,"Jul-25":30010.4,"Aug-25":10003.47}},{"id":13,"client":"Neuberg Diagnostics","service":"Other","desc":"Finance Function Transition – PMO","currency":"INR","winLocalCcy":null,"winUSD":3300,"year":2025,"proposalDate":"","winDate":"2025-06-20","startDate":"","endDate":"","partner":"Raghuram K, Shashikant S","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Jun-25":3300,"Jul-25":4400,"Aug-25":1650,"Sep-25":-4400,"Oct-25":1375,"Nov-25":-3025}},{"id":14,"client":"Apollo Hospitals","service":"Other","desc":"Contract Management DOA","currency":"INR","winLocalCcy":null,"winUSD":15400,"year":2025,"proposalDate":"","winDate":"2025-05-20","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Jun-25":4400,"Nov-25":11000}},{"id":15,"client":"Movate Inc","service":"FP&A Transformation","desc":"FP&A transition support","currency":"INR","winLocalCcy":null,"winUSD":84150,"year":2025,"proposalDate":"","winDate":"2025-06-20","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","monthly":{"Jun-25":11000,"Jul-25":11000,"Aug-25":11000,"Sep-25":11000,"Oct-25":11000,"Nov-25":5500,"Dec-25":5500,"Jan-26":6050,"Feb-26":6050,"Mar-26":6050}},{"id":16,"client":"Apollo Hospitals","service":"GCC","desc":"FT - Finance centralization","currency":"INR","winLocalCcy":null,"winUSD":75900,"year":2025,"proposalDate":"","winDate":"2025-06-20","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","monthly":{"Jun-25":4033.34,"Jul-25":4766.63,"Aug-25":5500,"Sep-25":6600,"Oct-25":6600,"Nov-25":6600,"Dec-25":6600,"Jan-26":6600,"Feb-26":6600,"Mar-26":6600,"Apr-26":6600,"May-26":6600,"Jun-26":2200.03}},{"id":17,"client":"Avalon Technologies","service":"Other","desc":"FT work","currency":"INR","winLocalCcy":null,"winUSD":30800,"year":2025,"proposalDate":"","winDate":"2025-06-20","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Sep-25":4400,"Oct-25":8250,"Nov-25":4950,"Dec-25":3300,"Jan-26":3300,"May-26":3300,"Jun-26":3300}},{"id":18,"client":"Haboob","service":"O2C Transformation","desc":"Revenue Support - ext","currency":"SAR","winLocalCcy":null,"winUSD":33011.44,"year":2025,"proposalDate":"","winDate":"2025-06-29","startDate":"","endDate":"","partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","monthly":{"Jul-25":29710.3,"Aug-25":3301.14}},{"id":19,"client":"Ooredoo Kuwait","service":"Maturity Assessment","desc":"Review of finance processes for ERP implementation","currency":"USD","winLocalCcy":118770,"winUSD":118770,"year":2025,"proposalDate":"","winDate":"2025-07-16","startDate":"","endDate":"","partner":"Dinesh J","spoc":"Dhaval P","location":"Kuwait","region":"ME","monthly":{"Jul-25":30250,"Aug-25":59000,"Sep-25":29500,"Dec-25":10}},{"id":20,"client":"Apollo Hospitals","service":"Other","desc":"Patient deposit transformation","currency":"INR","winLocalCcy":null,"winUSD":26400,"year":2025,"proposalDate":"","winDate":"2025-08-20","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Sep-25":8800,"Oct-25":4400,"Nov-25":4400,"Dec-25":4400,"Jan-26":4400}},{"id":21,"client":"Bloom Energy","service":"Other","desc":"Staff Augmentation for Cost Accounting","currency":"USD","winLocalCcy":310000,"winUSD":310000,"year":2025,"proposalDate":"","winDate":"2025-09-13","startDate":"","endDate":"","partner":"Avinash R","spoc":"Unassigned","location":"Others","region":"USA","monthly":{"Sep-25":30000,"Oct-25":50000,"Nov-25":50000,"Dec-25":50000,"Jan-26":50000,"Feb-26":30000,"Mar-26":50000}},{"id":22,"client":"EJADA Systems","service":"O2C Transformation","desc":"Revenue Process Transformation","currency":"USD","winLocalCcy":790000,"winUSD":790000,"year":2025,"proposalDate":"","winDate":"2025-07-30","startDate":"","endDate":"","partner":"Nishant S","spoc":"Vishal K","location":"KSA","region":"ME","monthly":{"Aug-25":30000,"Sep-25":60000,"Oct-25":60000,"Nov-25":15000,"Apr-26":80000,"May-26":40000,"Jun-26":32500,"Jul-26":32500,"Aug-26":32500,"Sep-26":72500,"Oct-26":190000,"Nov-26":90000,"Dec-26":15000,"Jan-27":40000}},{"id":23,"client":"Embassy REIT","service":"Maturity Assessment","desc":"R2R Maturity Assessment and DoA review","currency":"INR","winLocalCcy":null,"winUSD":13200,"year":2025,"proposalDate":"","winDate":"2025-07-28","startDate":"","endDate":"","partner":"Shobhana S","spoc":"Vishal K","location":"Bengaluru","region":"India","monthly":{"Aug-25":6600,"Sep-25":6600}},{"id":24,"client":"Mensa Brands","service":"Other","desc":"","currency":"INR","winLocalCcy":null,"winUSD":165000,"year":2025,"proposalDate":"","winDate":"2025-12-31","startDate":"","endDate":"","partner":"Mrinal T, Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","monthly":{"Jan-26":27500,"Feb-26":27500,"Mar-26":27500,"Apr-26":27500,"May-26":27500,"Jun-26":27500}},{"id":25,"client":"TEC","service":"Other","desc":"Finance transformation, Lease tool & IFC","currency":"INR","winLocalCcy":null,"winUSD":198440,"year":2025,"proposalDate":"","winDate":"2025-09-10","startDate":"","endDate":"","partner":"Shashikant S, Ashish G","spoc":"Vishal K","location":"Mumbai","region":"India","monthly":{"Sep-25":24805,"Oct-25":24805,"Nov-25":24805,"Dec-25":37207.5,"Jan-26":24805,"Feb-26":37207.5,"Mar-26":24805}},{"id":26,"client":"Zum Services Inc","service":"P2P Transformation","desc":"P2P Process Transformation","currency":"USD","winLocalCcy":155660,"winUSD":155660,"year":2025,"proposalDate":"","winDate":"2025-10-28","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vishal K","location":"USA","region":"USA","monthly":{"Nov-25":38750,"Dec-25":47500,"Jan-26":38750,"Feb-26":21750,"Apr-26":8910}},{"id":27,"client":"Bahri Shipping","service":"Other","desc":"IFRS Accounting Manual","currency":"USD","winLocalCcy":160000,"winUSD":160000,"year":2025,"proposalDate":"","winDate":"2025-04-14","startDate":"","endDate":"","partner":"Vineet Garg","spoc":"Arpan S","location":"KSA","region":"ME","monthly":{"Apr-25":5000,"May-25":38750,"Jun-25":38750,"Jul-25":38750,"Aug-25":13750,"Sep-25":15000,"Oct-25":1000,"Nov-25":2000,"Dec-25":2000,"Jan-26":1000,"Feb-26":1000,"Mar-26":3000}},{"id":28,"client":"Bahri Shipping","service":"CoE Setup","desc":"FT - CoE set-up, Transition and PMO","currency":"USD","winLocalCcy":460000,"winUSD":460000,"year":2025,"proposalDate":"","winDate":"2025-11-01","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Arpan S","location":"KSA","region":"ME","monthly":{"Nov-25":80000,"Dec-25":80000,"Jan-26":80000,"Feb-26":60000,"Mar-26":60000,"Apr-26":50000,"May-26":50000}},{"id":29,"client":"Culver Max (Sony)","service":"Other","desc":"COFA preparation","currency":"INR","winLocalCcy":null,"winUSD":6600,"year":2025,"proposalDate":"","winDate":"2025-09-15","startDate":"","endDate":"","partner":"Ashish G","spoc":"Unassigned","location":"Gurugram","region":"India","monthly":{"Sep-25":6600}},{"id":30,"client":"Polycab","service":"Secondment","desc":"Secondment- Jheel Nemani","currency":"INR","winLocalCcy":null,"winUSD":19800,"year":2025,"proposalDate":"","winDate":"2025-10-09","startDate":"","endDate":"","partner":"Nishant S","spoc":"Vikas G","location":"Mumbai","region":"India","monthly":{"Nov-25":3300,"Dec-25":3300,"Jan-26":3300,"Feb-26":3300,"Mar-26":3300,"Apr-26":3300}},{"id":31,"client":"Center3","service":"ABC Costing","desc":"COA and Activity Based Costing","currency":"USD","winLocalCcy":112600,"winUSD":112600,"year":2026,"proposalDate":"","winDate":"2026-01-13","startDate":"","endDate":"","partner":"Nishant S","spoc":"Vikas G","location":"KSA","region":"ME","monthly":{"Feb-26":40000,"Mar-26":40000,"Apr-26":32600}},{"id":32,"client":"Spimaco","service":"Fixed Asset Register","desc":"Physical verification of fixed assets","currency":"USD","winLocalCcy":108000,"winUSD":108000,"year":2026,"proposalDate":"","winDate":"2026-01-07","startDate":"","endDate":"","partner":"Dinesh J","spoc":"Dhaval P","location":"KSA","region":"ME","monthly":{"Jul-26":28000,"Aug-26":40000,"Sep-26":40000}},{"id":33,"client":"Hikma Pharmaceuticals Plc","service":"FP&A Transformation","desc":"Jordan, KSA & Mena – FP&A & Costing","currency":"USD","winLocalCcy":120000,"winUSD":120000,"year":2025,"proposalDate":"","winDate":"2025-10-30","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vishal K","location":"Others","region":"ME","monthly":{"Nov-25":31250,"Dec-25":31250,"Jan-26":31250,"Feb-26":26250}},{"id":34,"client":"Tata Realty","service":"R2R Transformation","desc":"R2R Support service","currency":"INR","winLocalCcy":null,"winUSD":35200,"year":2025,"proposalDate":"","winDate":"2025-10-28","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vikas G","location":"Others","region":"India","monthly":{"Nov-25":4400,"Dec-25":4400,"Jan-26":4400,"Feb-26":4400,"Mar-26":4400,"Apr-26":4400,"May-26":4400,"Jun-26":4400}},{"id":35,"client":"Virtusa","service":"P2P Transformation","desc":"P2P – Process study","currency":"INR","winLocalCcy":null,"winUSD":4400,"year":2025,"proposalDate":"","winDate":"2025-10-30","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","monthly":{"May-26":4400}},{"id":36,"client":"Apollo Hospitals","service":"Other","desc":"BBSR Lift & Shift","currency":"INR","winLocalCcy":null,"winUSD":26400,"year":2025,"proposalDate":"","winDate":"2025-11-12","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","monthly":{"Jan-26":19800,"Feb-26":6600}},{"id":37,"client":"Culver Max (Sony)","service":"Other","desc":"P2P & O2C Transformation","currency":"INR","winLocalCcy":null,"winUSD":214500,"year":2026,"proposalDate":"","winDate":"2026-02-24","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vikas G","location":"Gurugram","region":"India","monthly":{"Mar-26":22000,"Apr-26":55000,"May-26":55000,"Jun-26":55000,"Jul-26":27500}},{"id":38,"client":"LeazeOn","service":"Other","desc":"Share of revenue - Alliance Partner","currency":"INR","winLocalCcy":null,"winUSD":6050,"year":2025,"proposalDate":"","winDate":"2025-12-30","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vishwa M","location":"Bengaluru","region":"India","monthly":{"Dec-25":6050}},{"id":39,"client":"Apollo Hospitals","service":"Other","desc":"SO Module implementation & Accounting centralization","currency":"INR","winLocalCcy":null,"winUSD":67650,"year":2025,"proposalDate":"","winDate":"2025-12-04","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Jan-26":19800,"Feb-26":9900,"Mar-26":9900,"Apr-26":9900,"May-26":9900,"Jun-26":8250}},{"id":40,"client":"Chrys Capital","service":"Other","desc":"FT","currency":"INR","winLocalCcy":null,"winUSD":26400,"year":2026,"proposalDate":"","winDate":"2026-02-20","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vikas G","location":"Mumbai","region":"India","monthly":{"Mar-26":11000,"Apr-26":13200,"May-26":2200}},{"id":41,"client":"Apollo Hospitals","service":"Other","desc":"Receivables Analysis","currency":"INR","winLocalCcy":null,"winUSD":49500,"year":2026,"proposalDate":"","winDate":"2026-01-13","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Jan-26":8250,"Feb-26":8250,"Mar-26":8250,"Apr-26":8250,"May-26":8250,"Jun-26":8250}},{"id":42,"client":"Apollo Hospitals","service":"Other","desc":"Tariff Management","currency":"INR","winLocalCcy":null,"winUSD":33000,"year":2026,"proposalDate":"","winDate":"2026-02-02","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","monthly":{"Feb-26":5500,"Mar-26":5500,"Apr-26":5500,"May-26":5500,"Jun-26":5500,"Jul-26":5500}},{"id":43,"client":"Atmaal","service":"ABC Costing","desc":"POC - ABC Costing","currency":"USD","winLocalCcy":75000,"winUSD":75000,"year":2026,"proposalDate":"","winDate":"2026-01-30","startDate":"","endDate":"","partner":"Wouter L","spoc":"Vishal K","location":"KSA","region":"ME","monthly":{"Feb-26":37500,"Mar-26":17500,"Apr-26":20000}},{"id":44,"client":"Azura Partners","service":"Managed Services","desc":"Managed Services","currency":"USD","winLocalCcy":400000,"winUSD":400000,"year":2026,"proposalDate":"","winDate":"2026-04-01","startDate":"","endDate":"","partner":"Dinesh J","spoc":"Arpan S","location":"UAE","region":"ME","monthly":{"Apr-26":15000,"May-26":30000,"Jun-26":30000,"Jul-26":30000,"Aug-26":15000,"Sep-26":15000,"Oct-26":15000,"Nov-26":15000,"Dec-26":15000,"Jan-27":15000,"Feb-27":15000,"Mar-27":15000,"Apr-27":15000,"May-27":15000,"Jun-27":15000,"Jul-27":15000,"Aug-27":15000,"Sep-27":15000,"Oct-27":15000,"Nov-27":15000,"Dec-27":15000}},{"id":45,"client":"Delightful Gourmet","service":"Other","desc":"FT on Post Merger Integration (PMI)","currency":"INR","winLocalCcy":null,"winUSD":22000,"year":2026,"proposalDate":"","winDate":"2026-02-26","startDate":"","endDate":"","partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","monthly":{"Mar-26":11000,"Apr-26":11000}},{"id":46,"client":"Biocon Biologics Limited","service":"Secondment","desc":"Secondment","currency":"INR","winLocalCcy":null,"winUSD":97350,"year":2026,"proposalDate":"","winDate":"2026-03-07","startDate":"","endDate":"","partner":"Shashikant S","spoc":"Vikas G","location":"Mumbai","region":"India","monthly":{"Mar-26":13200,"Apr-26":20350,"May-26":20350,"Jun-26":20350,"Jul-26":11550,"Aug-26":11550}},{"id":47,"client":"Mensa Brands","service":"Secondment","desc":"P2P finance operations_Secondment","currency":"INR","winLocalCcy":null,"winUSD":11550,"year":2026,"proposalDate":"","winDate":"2026-02-17","startDate":"","endDate":"","partner":"Mrinal T","spoc":"Vishal K","location":"Bengaluru","region":"India","monthly":{"Feb-26":1925,"Mar-26":3712.5,"Apr-26":3850,"May-26":1925,"Jun-26":137.5}},{"id":48,"client":"TEC","service":"Other","desc":"Lease Tool for TEC Singapore","currency":"USD","winLocalCcy":15000,"winUSD":15000,"year":2026,"proposalDate":"","winDate":"2026-02-06","startDate":"","endDate":"","partner":"Ashish G","spoc":"Unassigned","location":"Mumbai","region":"India","monthly":{"Feb-26":15000}},{"id":49,"client":"Altius Telecom","service":"FP&A Transformation","desc":"FP&A","currency":"INR","winLocalCcy":null,"winUSD":36300,"year":2026,"proposalDate":"","winDate":"2026-03-19","startDate":"","endDate":"","partner":"Sagar L","spoc":"Vikas G","location":"Mumbai","region":"India","monthly":{"Mar-26":3025,"Apr-26":3025,"May-26":3025,"Jun-26":3025,"Jul-26":3025,"Aug-26":3025,"Sep-26":3025,"Oct-26":3025,"Nov-26":3025,"Dec-26":3025,"Jan-27":3025,"Feb-27":3025}},{"id":50,"client":"Avanse Financial","service":"FP&A Transformation","desc":"FP&A","currency":"INR","winLocalCcy":null,"winUSD":25960,"year":2026,"proposalDate":"","winDate":"2026-03-19","startDate":"","endDate":"","partner":"Sagar L","spoc":"Vikas G","location":"Mumbai","region":"India","monthly":{"Mar-26":3245,"Apr-26":3245,"May-26":3245,"Jun-26":3245,"Jul-26":3245,"Aug-26":3245,"Sep-26":3245,"Oct-26":3245}},{"id":51,"client":"Picarro Inc.","service":"Managed Services","desc":"FT managed services, revenue process","currency":"USD","winLocalCcy":170400,"winUSD":170400,"year":2026,"proposalDate":"","winDate":"2026-03-12","startDate":"","endDate":"","partner":"Amit J","spoc":"Unassigned","location":"Sant Clara","region":"USA","monthly":{"Mar-26":30000,"Apr-26":56800,"May-26":56800,"Jun-26":26800}},{"id":52,"client":"Yatra Online","service":"FP&A Transformation","desc":"FP&A","currency":"INR","winLocalCcy":null,"winUSD":6930,"year":2026,"proposalDate":"","winDate":"2026-03-19","startDate":"","endDate":"","partner":"Sagar G","spoc":"Vikas G","location":"Gurugram","region":"India","monthly":{"Mar-26":3465,"Apr-26":3465}},{"id":53,"client":"Mensa Brands","service":"Data Governance & Transformation","desc":"Data transformation and Governance","currency":"INR","winLocalCcy":null,"winUSD":27500,"year":2026,"proposalDate":"","winDate":"2026-04-02","startDate":"","endDate":"","partner":"Bharat C","spoc":"Vishal K","location":"Bengaluru","region":"India","monthly":{"Apr-26":9166.66,"May-26":9166.66,"Jun-26":9166.66}},{"id":54,"client":"Cognizant","service":"GCC","desc":"FT - COE/SSC/GCC/GBS Advisory","currency":"USD","winLocalCcy":300000,"winUSD":300000,"year":2026,"proposalDate":"","winDate":"2026-04-13","startDate":"","endDate":"","partner":"Wouter L","spoc":"Vishal K","location":"Others","region":"USA","monthly":{}}];
+
+const PIPELINE_RAW = [{"id":1,"client":"STC Bank","service":"R2R Transformation","desc":"General Ledger Control & Reconciliations","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shahrukh K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":2,"client":"Swiggy","service":"Other","desc":"Finance transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Bengaluru","region":"India","oppDate":"2025-02-01"},{"id":3,"client":"Turing","service":"Other","desc":"Finance + IPO Readiness","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Sandip K, Avinash R","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2025-02-01"},{"id":4,"client":"Confidential","service":"Other","desc":"Ukrain JV financial model preparation","stage":"Lost","oppUSD":55000,"prob":0,"weightedUSD":0,"partner":"Dinesh J","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2025-03-01"},{"id":5,"client":"Mahindra Holidays","service":"P2P Transformation","desc":"SSC for P2P","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Vikas G","location":"Mumbai","region":"India","oppDate":"2025-03-01"},{"id":6,"client":"Tabby","service":"Other","desc":"Finance Policies and Procedure Development","stage":"Abandoned","oppUSD":90000,"prob":0.3,"weightedUSD":27000,"partner":"Shahrukh K","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2025-03-01"},{"id":7,"client":"Tawal","service":"FP&A Transformation","desc":"FP&A reporting standardisation","stage":"Abandoned","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Dinesh J","spoc":"Vikas G","location":"KSA","region":"ME","oppDate":"2025-03-01"},{"id":8,"client":"Temasek","service":"Secondment","desc":"Finance Function Support and Secondment","stage":"Preliminary","oppUSD":250000,"prob":0.3,"weightedUSD":75000,"partner":"Raghuram K","spoc":"Unassigned","location":"Singapore","region":"India","oppDate":"2025-03-01"},{"id":9,"client":"Etihad Ground Services","service":"Other","desc":"PMO Integration","stage":"Lost","oppUSD":180000,"prob":0.3,"weightedUSD":54000,"partner":"Dinesh J","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2025-03-19"},{"id":10,"client":"Insurance Authority","service":"Managed Services","desc":"Managed Finance Services","stage":"Abandoned","oppUSD":450000,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-03-19"},{"id":11,"client":"Quess Corp","service":"Working Capital Optimization","desc":"Working capital optimization","stage":"Abandoned","oppUSD":27500,"prob":0.3,"weightedUSD":8250,"partner":"Shashikant S","spoc":"Vikas G","location":"Bengaluru","region":"India","oppDate":"2025-03-19"},{"id":12,"client":"Quess Corp","service":"Other","desc":"Finance Transformation","stage":"Preliminary","oppUSD":27500,"prob":0.3,"weightedUSD":8250,"partner":"Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","oppDate":"2025-03-19"},{"id":13,"client":"ADQ","service":"Maturity Assessment","desc":"Maturity Assessment","stage":"Lost","oppUSD":20000,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Arpan S","location":"UAE","region":"ME","oppDate":"2025-04-25"},{"id":14,"client":"Al Rajhi Bank","service":"Other","desc":"CFDC - Regulatory Remediation","stage":"Lost","oppUSD":445000,"prob":0,"weightedUSD":0,"partner":"Shahrukh K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-04-25"},{"id":15,"client":"Appaswamy Associates","service":"Other","desc":"FT Project","stage":"Abandoned","oppUSD":33000,"prob":0.3,"weightedUSD":9900,"partner":"Raghuram K, Shashikant S","spoc":"Unassigned","location":"Chennai","region":"India","oppDate":"2025-04-25"},{"id":16,"client":"Ghobash Group","service":"Secondment","desc":"Secondment with Finance Team","stage":"Lost","oppUSD":60000,"prob":0.3,"weightedUSD":18000,"partner":"Shahrukh K","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2025-04-25"},{"id":17,"client":"Girnar Insurance","service":"Other","desc":"Post Merger Integration","stage":"Lost","oppUSD":324500,"prob":0.3,"weightedUSD":97350,"partner":"Sagar L","spoc":"Vikas G","location":"Bengaluru","region":"India","oppDate":"2025-05-01"},{"id":18,"client":"Agilitas Sports","service":"Other","desc":"FT for Mochiko Operations","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S, Mrinal T","spoc":"Unassigned","location":"Chennai","region":"India","oppDate":"2025-05-25"},{"id":19,"client":"Cognizant","service":"GCC","desc":"GCC as a service","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Raghuram K, Shashikant S","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2025-05-25"},{"id":20,"client":"Embark","service":"GCC","desc":"GCC as a service","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Sagar L, Shashikant S","spoc":"Unassigned","location":"Others","region":"India","oppDate":"2025-05-25"},{"id":21,"client":"FAB KSA","service":"Secondment","desc":"Finance Department Secondment","stage":"Abandoned","oppUSD":36000,"prob":0.3,"weightedUSD":10800,"partner":"Shahrukh K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-05-25"},{"id":22,"client":"HDFC Bank","service":"Other","desc":"2nd line of defense","stage":"Preliminary","oppUSD":55000,"prob":0.3,"weightedUSD":16500,"partner":"Sagar L, Shashikant S","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-05-25"},{"id":23,"client":"Insurance Dekho","service":"Other","desc":"PMI for Renew Buy","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Vikas G","location":"Bengaluru","region":"India","oppDate":"2025-05-25"},{"id":24,"client":"King Faisal Hospital","service":"Secondment","desc":"Secondment - Business finance partners","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Dinesh J","spoc":"Dhaval P","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":25,"client":"King Faisal Hospital","service":"Maturity Assessment","desc":"Finance function maturity assessment","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Dinesh J","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-05-25"},{"id":26,"client":"Spimaco","service":"Fixed Asset Register","desc":"Finance Transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":27,"client":"Spimaco","service":"FP&A Transformation","desc":"Cost Allocation to Bus","stage":"Abandoned","oppUSD":55000,"prob":0.3,"weightedUSD":16500,"partner":"Dinesh J","spoc":"Dhaval P","location":"KSA","region":"ME","oppDate":"2025-05-25"},{"id":28,"client":"STC Group","service":"Benchmarking","desc":"Benchmarking of financial / operational metrices","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Saad A","spoc":"Vikas G","location":"KSA","region":"ME","oppDate":"2025-05-25"},{"id":29,"client":"Vedang Cellular","service":"Working Capital Optimization","desc":"Working capital optimization","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Vikas G","location":"Bengaluru","region":"India","oppDate":"2025-05-25"},{"id":30,"client":"Brookfield Properties","service":"Other","desc":"","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-05-30"},{"id":31,"client":"TimberCreek Financial","service":"Managed Services","desc":"Managed Finance Services","stage":"Lost","oppUSD":18040,"prob":0,"weightedUSD":0,"partner":"Shahrukh K","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-06-30"},{"id":32,"client":"Blancco Technologies","service":"GCC","desc":"Centralize Controllership Operations in India","stage":"Abandoned","oppUSD":300000,"prob":0.3,"weightedUSD":90000,"partner":"Shashikant S","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2025-07-30"},{"id":33,"client":"Eupraxia Pharma","service":"Other","desc":"","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Avinash R","spoc":"Unassigned","location":"Canada","region":"USA","oppDate":"2025-07-30"},{"id":34,"client":"Navi Technologies","service":"Other","desc":"Diagnose and Design","stage":"Lost","oppUSD":60500,"prob":0.3,"weightedUSD":18150,"partner":"Shashikant S","spoc":"Vishwa M","location":"Bengaluru","region":"India","oppDate":"2025-07-30"},{"id":35,"client":"STC Bank","service":"Other","desc":"Finance Transformation","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Saad A","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":36,"client":"STC Bank","service":"Other","desc":"BOD Report Preparation","stage":"Lost","oppUSD":100000,"prob":0,"weightedUSD":0,"partner":"Shahrukh K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-07-30"},{"id":37,"client":"Tamam Finance","service":"Other","desc":"Finance Optimization","stage":"Abandoned","oppUSD":35000,"prob":0.3,"weightedUSD":10500,"partner":"Shahrukh K, Wouter L","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-07-30"},{"id":38,"client":"Urban Company","service":"Other","desc":"","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Vikas G","location":"Gurugram","region":"India","oppDate":"2025-07-30"},{"id":39,"client":"Dallah Healthcare","service":"FP&A Transformation","desc":"FP&A set up Support","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Vikas G","location":"KSA","region":"ME","oppDate":"2025-08-25"},{"id":40,"client":"Ooredoo Qatar","service":"Other","desc":"FDD analysis of Target entity","stage":"Abandoned","oppUSD":30000,"prob":0.3,"weightedUSD":9000,"partner":"Dinesh J","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2025-08-25"},{"id":41,"client":"Center3","service":"FP&A Transformation","desc":"FP&A reporting + Finance transformation","stage":"Abandoned","oppUSD":527000,"prob":0.3,"weightedUSD":158100,"partner":"Nishant S","spoc":"Vishal K","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":42,"client":"Center3","service":"Fixed Asset Register","desc":"Physical verification, tagging, and SOP","stage":"Lost","oppUSD":290000,"prob":0.3,"weightedUSD":87000,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-09-01"},{"id":43,"client":"Atmaal","service":"ABC Costing","desc":"Finance Transformation - ABC Costing","stage":"Preliminary","oppUSD":250000,"prob":0.3,"weightedUSD":75000,"partner":"Wouter L","spoc":"Vishal K","location":"KSA","region":"ME","oppDate":"2025-10-25"},{"id":44,"client":"Hikma Pharmaceuticals","service":"CoE Setup","desc":"Finance Transformation (JDC to COE)","stage":"Lost","oppUSD":45000,"prob":0.3,"weightedUSD":13500,"partner":"Shashikant S","spoc":"Unassigned","location":"Others","region":"ME","oppDate":"2025-10-25"},{"id":45,"client":"Modern Electronics","service":"Change Management","desc":"Change Management","stage":"Abandoned","oppUSD":30000,"prob":0.3,"weightedUSD":9000,"partner":"Wouter L","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-10-25"},{"id":46,"client":"OFB Tech (OfBusiness)","service":"Other","desc":"Finance function support","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Sagar L, Nishant S","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-10-25"},{"id":47,"client":"Walmart","service":"Other","desc":"FT&O","stage":"Preliminary","oppUSD":90200,"prob":0.3,"weightedUSD":27060,"partner":"Shashikant S","spoc":"Unassigned","location":"Bengaluru","region":"India","oppDate":"2025-10-25"},{"id":48,"client":"Al Khorayef Group","service":"Maturity Assessment","desc":"Maturity Assessment","stage":"Proposal Shared","oppUSD":80000,"prob":0.3,"weightedUSD":24000,"partner":"Zaid K","spoc":"Wouter L","location":"KSA","region":"ME","oppDate":"2025-11-01"},{"id":49,"client":"Arasco","service":"Maturity Assessment","desc":"Maturity Assessment","stage":"Preliminary","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Wouter L","spoc":"Arpan S","location":"UAE","region":"ME","oppDate":"2025-11-01"},{"id":50,"client":"Culver Max (Sony)","service":"Cashflow Forecasting","desc":"Cashflow forecasting","stage":"Preliminary","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Wouter L","spoc":"Vikas G","location":"Gurugram","region":"India","oppDate":"2025-11-01"},{"id":51,"client":"DAMAC","service":"Maturity Assessment","desc":"Support function finance transformation","stage":"Preliminary","oppUSD":60000,"prob":0.3,"weightedUSD":18000,"partner":"Wouter L","spoc":"Arpan S","location":"UAE","region":"ME","oppDate":"2025-11-01"},{"id":52,"client":"Museum of the Future","service":"Maturity Assessment","desc":"Maturity Assessment","stage":"Preliminary","oppUSD":60000,"prob":0.3,"weightedUSD":18000,"partner":"Wouter L","spoc":"Arpan S","location":"UAE","region":"ME","oppDate":"2025-11-01"},{"id":53,"client":"NEOM","service":"Improving Close Cycle","desc":"Fast close process","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Wouter L","spoc":"Arpan S","location":"KSA","region":"ME","oppDate":"2025-11-01"},{"id":54,"client":"NEOM","service":"O2C Transformation","desc":"Accounts Receivable","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Wouter L","spoc":"Arpan S","location":"KSA","region":"ME","oppDate":"2025-11-01"},{"id":55,"client":"NEOM","service":"Cashflow Forecasting","desc":"Cashflow Forecasting","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Wouter L","spoc":"Arpan S","location":"KSA","region":"ME","oppDate":"2025-11-01"},{"id":56,"client":"Saudi Olympic Committee","service":"Target Operating Model (TOM)","desc":"Target Operating Model","stage":"Abandoned","oppUSD":64295.2,"prob":0.3,"weightedUSD":19288.56,"partner":"Wouter L","spoc":"Arpan S","location":"KSA","region":"ME","oppDate":"2025-11-01"},{"id":57,"client":"Saudi Olympic Committee","service":"Fixed Asset Register","desc":"Fixed Asset Policies","stage":"Proposal Shared","oppUSD":80000,"prob":0.3,"weightedUSD":24000,"partner":"Zaid K","spoc":"Wouter L","location":"KSA","region":"ME","oppDate":"2025-12-06"},{"id":58,"client":"Indus Towers","service":"Other","desc":"FT","stage":"Preliminary","oppUSD":16500,"prob":0.3,"weightedUSD":4950,"partner":"Shashikant S","spoc":"Vikas G","location":"Mumbai","region":"India","oppDate":"2025-12-31"},{"id":59,"client":"TEC","service":"Other","desc":"Budget 2026","stage":"Abandoned","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Ashish G","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-12-31"},{"id":60,"client":"TEC","service":"Other","desc":"FT (Phase 2) & Tech Support","stage":"Abandoned","oppUSD":270600,"prob":0.3,"weightedUSD":81180,"partner":"Ashish G, Shashikant S, Bharat C","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2026-01-25"},{"id":61,"client":"Zain Kuwait","service":"R2R Transformation","desc":"Chart of Accounts Update","stage":"Preliminary","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Kuwait","region":"ME","oppDate":"2026-01-26"},{"id":62,"client":"Zain Kuwait","service":"AI in Finance","desc":"AI in Finance","stage":"Preliminary","oppUSD":0,"prob":0.1,"weightedUSD":0,"partner":"Wouter L","spoc":"Unassigned","location":"Kuwait","region":"ME","oppDate":"2026-01-26"},{"id":63,"client":"Audax","service":"Maturity Assessment","desc":"Finance Transformation Assessments","stage":"Preliminary","oppUSD":75000,"prob":0.3,"weightedUSD":22500,"partner":"Anthony V","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2026-02-01"},{"id":64,"client":"Calibre Chemicals","service":"Target Operating Model (TOM)","desc":"TOM and business process","stage":"Preliminary","oppUSD":55000,"prob":0.3,"weightedUSD":16500,"partner":"Nirav P","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2026-02-01"},{"id":65,"client":"Center3","service":"Secondment","desc":"Secondment for Financial Reporting","stage":"Lost","oppUSD":162000,"prob":0.3,"weightedUSD":48600,"partner":"Nabeel K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2026-02-01"},{"id":66,"client":"Emirates Driving Company","service":"FP&A Transformation","desc":"FP&A Transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Dinesh J","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2026-02-01"},{"id":67,"client":"Mensa Brands","service":"Secondment","desc":"MIS finance operations_Secondment","stage":"Lost","oppUSD":17160,"prob":0.3,"weightedUSD":5148,"partner":"Mrinal T","spoc":"Vishal K","location":"Bengaluru","region":"India","oppDate":"2026-02-01"},{"id":68,"client":"NMC Healthcare","service":"Maturity Assessment","desc":"Maturity Assessment","stage":"Preliminary","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Wouter L","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2026-02-01"},{"id":69,"client":"STC","service":"ABC Costing","desc":"Costing for Service wise P&L","stage":"Preliminary","oppUSD":50000,"prob":0.3,"weightedUSD":15000,"partner":"Saad A","spoc":"Vikas G","location":"KSA","region":"ME","oppDate":"2026-02-01"},{"id":70,"client":"Tata Realty","service":"R2R Transformation","desc":"R2R Support service","stage":"Proposal Shared","oppUSD":35200,"prob":0.3,"weightedUSD":10560,"partner":"Sagar G","spoc":"Vikas G","location":"Others","region":"India","oppDate":"2026-02-01"},{"id":71,"client":"Zepto","service":"Other","desc":"Inventory - physical verification","stage":"Preliminary","oppUSD":11000,"prob":0.3,"weightedUSD":3300,"partner":"Raghuram K","spoc":"Unassigned","location":"Gurugram","region":"India","oppDate":"2026-02-01"},{"id":72,"client":"Fisica","service":"Other","desc":"Support on payables process and staffing","stage":"Preliminary","oppUSD":80000,"prob":0.3,"weightedUSD":24000,"partner":"Anthony V","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2026-03-26"},{"id":73,"client":"Insurance Authority","service":"Maturity Assessment","desc":"Finance Function Maturity Assessment","stage":"Abandoned","oppUSD":50000,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-01-01"},{"id":74,"client":"Insurance Authority","service":"FP&A Transformation","desc":"Budget and Planning Management","stage":"Proposal Shared","oppUSD":750000,"prob":0.3,"weightedUSD":225000,"partner":"Wouter L","spoc":"Vikas G","location":"KSA","region":"ME","oppDate":"2026-03-26"},{"id":75,"client":"Matarat Holding","service":"Other","desc":"MIS and Budget Review","stage":"Preliminary","oppUSD":50000,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2026-03-26"},{"id":76,"client":"Ministry of Finance (MOF)","service":"Target Operating Model (TOM)","desc":"Operating Model & Current state assessment","stage":"Proposal Shared","oppUSD":159019.74,"prob":0.3,"weightedUSD":47705.92,"partner":"Dinesh J","spoc":"Arpan S","location":"UAE","region":"ME","oppDate":"2026-03-09"},{"id":77,"client":"Opus Regulatory","service":"Other","desc":"Pre and post-merger integration","stage":"Preliminary","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Arda K","spoc":"Unassigned","location":"New york","region":"USA","oppDate":"2026-03-26"},{"id":78,"client":"TEC","service":"Other","desc":"H2R Transformation","stage":"Proposal Shared","oppUSD":40000,"prob":0.3,"weightedUSD":12000,"partner":"Shashikant S","spoc":"Subashish C","location":"Mumbai","region":"India","oppDate":"2026-03-26"},{"id":79,"client":"WeWork","service":"Other","desc":"Assets Infinity Solution","stage":"Preliminary","oppUSD":24200,"prob":0.3,"weightedUSD":7260,"partner":"Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","oppDate":"2026-03-26"},{"id":80,"client":"WeWork","service":"Other","desc":"Asset Transformation","stage":"Preliminary","oppUSD":90310,"prob":0.3,"weightedUSD":27093,"partner":"Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","oppDate":"2026-03-26"},{"id":81,"client":"Apollo Hospitals","service":"Other","desc":"Doctor Fee Analysis","stage":"Proposal Shared","oppUSD":13200,"prob":0.3,"weightedUSD":3960,"partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","oppDate":"2026-03-29"},{"id":82,"client":"Vuchi Media","service":"Other","desc":"Finance Transformation","stage":"Proposal Shared","oppUSD":55000,"prob":0.3,"weightedUSD":16500,"partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","oppDate":"2026-03-30"},{"id":83,"client":"Alyassia","service":"Other","desc":"Finance function revamp","stage":"Preliminary","oppUSD":0,"prob":0.3,"weightedUSD":0,"partner":"Dinesh J","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2026-04-01"},{"id":84,"client":"STC Solutions","service":"Maturity Assessment","desc":"Finance Function Diagnostic","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-01-01"},{"id":85,"client":"Zain Kuwait","service":"Maturity Assessment","desc":"Finance Maturity Assessment","stage":"Abandoned","oppUSD":100000,"prob":0,"weightedUSD":0,"partner":"Dinesh J","spoc":"Dhaval P","location":"KSA","region":"ME","oppDate":"2025-01-01"},{"id":86,"client":"100ms","service":"Other","desc":"Inter-Company framework","stage":"Abandoned","oppUSD":22550,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Bengaluru","region":"India","oppDate":"2025-02-01"},{"id":87,"client":"Arab National Bank","service":"Other","desc":"EIR Computation Support","stage":"Lost","oppUSD":47500,"prob":0,"weightedUSD":0,"partner":"Shahrukh K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":88,"client":"Avalon Technologies","service":"Other","desc":"FT work","stage":"Abandoned","oppUSD":19800,"prob":0.3,"weightedUSD":5940,"partner":"Raghuram K","spoc":"Abhishek C","location":"Chennai","region":"India","oppDate":"2025-02-01"},{"id":89,"client":"Brookfield InvIT","service":"Other","desc":"Finance function integration","stage":"Lost","oppUSD":132000,"prob":0.3,"weightedUSD":39600,"partner":"Shashikant S","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-02-01"},{"id":90,"client":"CareDX","service":"Other","desc":"","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Sandip K, Shashikant S","spoc":"Unassigned","location":"Others","region":"USA","oppDate":"2025-02-01"},{"id":91,"client":"Chefz","service":"Maturity Assessment","desc":"Finance Function Diagnostic","stage":"Abandoned","oppUSD":70000,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":92,"client":"Enforcement Dept","service":"Other","desc":"Finance Transformation","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Saad A","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":93,"client":"Infath","service":"Other","desc":"FT","stage":"Abandoned","oppUSD":3000000,"prob":0,"weightedUSD":0,"partner":"Saad A","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":94,"client":"Jio Financial Services","service":"GCC","desc":"Finance shared services","stage":"Not To Be Targeted (NTBT)","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Others","region":"India","oppDate":"2025-02-01"},{"id":95,"client":"Jio SSC","service":"Other","desc":"","stage":"Not To Be Targeted (NTBT)","oppUSD":0,"prob":0.6,"weightedUSD":0,"partner":"Nagraj U","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-02-01"},{"id":96,"client":"Jones Lang LaSalle","service":"CoE Setup","desc":"Global Statutory Financial Reporting","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"Bengaluru","region":"India","oppDate":"2025-02-01"},{"id":97,"client":"Kaar Technologies","service":"Other","desc":"Finance Transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Raghuram K","spoc":"Unassigned","location":"Chennai","region":"India","oppDate":"2025-02-01"},{"id":98,"client":"King Saud University","service":"Other","desc":"FT","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Saad A","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":99,"client":"Lodha Group","service":"Target Operating Model (TOM)","desc":"Target Operating Model","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Sagar L, Shashikant S","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-02-01"},{"id":100,"client":"MAG (FTI)","service":"Other","desc":"Finance Operations","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2025-02-01"},{"id":101,"client":"Mahindra & Mahindra","service":"Other","desc":"","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S, Bharat Chadha","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-02-01"},{"id":102,"client":"Mauritius Telecom","service":"Fixed Asset Register","desc":"FAR transformation","stage":"Abandoned","oppUSD":100000,"prob":0.3,"weightedUSD":30000,"partner":"Shashikant S, Ashish G","spoc":"Vikas G","location":"Mauritius","region":"India","oppDate":"2025-02-01"},{"id":103,"client":"Mubadala","service":"Other","desc":"Finance Transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Nagraj U","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2025-02-01"},{"id":104,"client":"Red Envelope","service":"Managed Services","desc":"Managed Services","stage":"Abandoned","oppUSD":112750,"prob":0.3,"weightedUSD":33825,"partner":"Shashikant S","spoc":"Vishal K","location":"Bengaluru","region":"India","oppDate":"2025-02-01"},{"id":105,"client":"SABIC","service":"AI in Finance","desc":"Finance Transformation","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Shashikant S","spoc":"Unassigned","location":"KSA","region":"ME","oppDate":"2025-02-01"},{"id":106,"client":"Salama Hospital","service":"Other","desc":"Finance Transformation + Policies","stage":"Abandoned","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Zaid K","spoc":"Unassigned","location":"UAE","region":"ME","oppDate":"2025-02-01"},{"id":107,"client":"Servion Global","service":"Other","desc":"FT work","stage":"Preliminary","oppUSD":0,"prob":0,"weightedUSD":0,"partner":"Raghuram K","spoc":"Unassigned","location":"Others","region":"India","oppDate":"2025-02-01"},{"id":108,"client":"Tawal","service":"P2P Transformation","desc":"Finance and Procurement Transformation","stage":"Proposal Shared","oppUSD":220000,"prob":0.5,"weightedUSD":110000,"partner":"Wouter L","spoc":"Arpan S","location":"KSA","region":"ME","oppDate":"2026-04-01"},{"id":109,"client":"Hikma Pharmaceuticals","service":"GBS","desc":"Cross functional GBS","stage":"Preliminary","oppUSD":600000,"prob":0.2,"weightedUSD":120000,"partner":"Wouter L","spoc":"Unassigned","location":"Others","region":"ME","oppDate":"2026-04-08"},{"id":110,"client":"Ooredoo Qatar","service":"AI in Finance","desc":"AI in Finance and FP&A improvements","stage":"Preliminary","oppUSD":0,"prob":0.1,"weightedUSD":0,"partner":"Wouter L","spoc":"Dhaval P","location":"UAE","region":"ME","oppDate":"2026-03-30"},{"id":111,"client":"GitLab Inc","service":"Other","desc":"Book Keeping, Fin Ops and Tax Ops","stage":"Preliminary","oppUSD":100000,"prob":0.5,"weightedUSD":50000,"partner":"Sandip K, Saad A, Amit J","spoc":"Mazhar L","location":"KSA","region":"ME","oppDate":"2026-04-06"},{"id":112,"client":"Airtel","service":"AI in Finance","desc":"AI in Finance Workshop on FT","stage":"Preliminary","oppUSD":22000,"prob":0.3,"weightedUSD":6600,"partner":"Sagar L, Wouter L","spoc":"Unassigned","location":"Mumbai","region":"India","oppDate":"2025-12-27"}];
+
+// Budget by region (from Dashboard sheet formulas)
+const BUDGET = { ME: 3000000, USA: 2000000, India: 1500000 };
+const BUDGET_YEARS = [2026]; // FYs with budget data
+
+const MONTHS_ORDER = ["Jan-25","Feb-25","Mar-25","Apr-25","May-25","Jun-25","Jul-25","Aug-25","Sep-25","Oct-25","Nov-25","Dec-25","Jan-26","Feb-26","Mar-26","Apr-26","May-26","Jun-26","Jul-26","Aug-26","Sep-26","Oct-26","Nov-26","Dec-26","Jan-27","Feb-27","Mar-27","Apr-27","May-27","Jun-27","Jul-27","Aug-27","Sep-27","Oct-27","Nov-27","Dec-27"];
+const COLORS = ["#2563eb","#10b981","#f59e0b","#ef4444","#8b5cf6","#ec4899","#06b6d4","#f97316","#14b8a6","#6366f1","#84cc16","#e11d48"];
+const fmt = v => v >= 1e6 ? `$${(v/1e6).toFixed(2)}M` : v >= 1e3 ? `$${(v/1e3).toFixed(0)}K` : `$${Math.round(v)}`;
+const fmtFull = v => `$${Number(v).toLocaleString("en-US",{maximumFractionDigits:0})}`;
+const ACTIVE_STAGES = ["Preliminary","Proposal Shared","Opportunity Live","Opportunity Budget"];
+
+// Current date: April 18, 2026
+const NOW_MONTH = 4; // April
+const NOW_YEAR = 2026;
+
+// Parse "Jan-26" → {month:1, year:2026}
+const parseMo = s => { const [m,y] = s.split("-"); const mi = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"].indexOf(m)+1; return {month:mi, year:2000+parseInt(y)}; };
+
+// Is month <= current month? (already clocked)
+const isClocked = (moStr) => { const {month,year} = parseMo(moStr); return year < NOW_YEAR || (year === NOW_YEAR && month <= NOW_MONTH); };
+
+// Is month in the same calendar year and after current month? (backlog for current FY)
+const isBacklogCurrentFY = (moStr, fy) => { const {month,year} = parseMo(moStr); return year === fy && month > NOW_MONTH; };
+
+// ─── COMPONENTS ─────────────────────────────────────────────────────────────
+const Filter = ({label,options,value,onChange}) => (
+  <div className="flex flex-col gap-1">
+    <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">{label}</label>
+    <select value={value} onChange={e=>onChange(e.target.value)} className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+      <option value="All">All</option>
+      {options.map(o=><option key={o} value={o}>{o}</option>)}
+    </select>
+  </div>
+);
+
+const KPI = ({title,value,sub,color="blue",onClick}) => {
+  const cls = {blue:"from-blue-500 to-blue-600",green:"from-emerald-500 to-emerald-600",amber:"from-amber-500 to-amber-600",purple:"from-purple-500 to-purple-600",rose:"from-rose-500 to-rose-600",cyan:"from-cyan-500 to-cyan-600",red:"from-red-500 to-red-600"};
+  return (
+    <div className={`bg-gradient-to-br ${cls[color]||cls.blue} rounded-xl p-5 text-white shadow-lg ${onClick?'cursor-pointer hover:shadow-xl transition-shadow':''}`} onClick={onClick}>
+      <div className="text-xs font-medium uppercase tracking-wider opacity-80">{title}</div>
+      <div className="text-2xl font-bold mt-1">{value}</div>
+      {sub && <div className="text-xs mt-1 opacity-75">{sub}</div>}
+    </div>
+  );
+};
+
+const Tab = ({tabs,active,onChange}) => (
+  <div className="flex gap-1 bg-gray-100 rounded-lg p-1 w-fit flex-wrap">
+    {tabs.map(t=>(
+      <button key={t} onClick={()=>onChange(t)} className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${active===t?'bg-white text-blue-600 shadow-sm':'text-gray-500 hover:text-gray-700'}`}>{t}</button>
+    ))}
+  </div>
+);
+
+const CT = ({active,payload,label}) => {
+  if(!active||!payload?.length) return null;
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg p-3 shadow-lg text-sm max-w-xs">
+      <div className="font-semibold text-gray-800 mb-1">{label}</div>
+      {payload.filter(p=>p.value!==0).map((p,i)=><div key={i} className="flex items-center gap-2"><div className="w-2 h-2 rounded-full" style={{background:p.color}}/><span className="text-gray-600">{p.name}:</span><span className="font-medium">{fmtFull(p.value)}</span></div>)}
+    </div>
+  );
+};
+
+// ─── DRILL-DOWN MODAL ───────────────────────────────────────────────────────
+const DrillModal = ({title,data,cols,onClose}) => (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
+    <div className="bg-white rounded-xl shadow-2xl max-w-6xl w-full mx-4 max-h-[85vh] flex flex-col" onClick={e=>e.stopPropagation()}>
+      <div className="flex justify-between items-center p-4 border-b"><h3 className="text-lg font-bold text-gray-800">{title}</h3><button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none">×</button></div>
+      <div className="overflow-auto flex-1 p-4">
+        <table className="w-full text-sm">
+          <thead><tr>{cols.map(c=><th key={c.key} className="text-left py-2 px-3 bg-gray-50 font-semibold text-gray-600 sticky top-0 whitespace-nowrap">{c.label}</th>)}</tr></thead>
+          <tbody>{data.map((r,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50">{cols.map(c=><td key={c.key} className="py-2 px-3 text-gray-700 whitespace-nowrap">{c.fmt?c.fmt(r[c.key]):r[c.key]||'—'}</td>)}</tr>)}</tbody>
+        </table>
+      </div>
+      <div className="p-3 border-t text-xs text-gray-400 text-right">{data.length} records</div>
+    </div>
+  </div>
+);
+
+// ─── MAIN DASHBOARD ─────────────────────────────────────────────────────────
+const Dashboard = function Dashboard() {
+  const [region, setRegion] = useState("All");
+  const [spoc, setSpoc] = useState("All");
+  const [service, setService] = useState("All");
+  const [year, setYear] = useState("2026");
+  const [view, setView] = useState("Overview");
+  const [drill, setDrill] = useState(null);
+
+  const wins = useMemo(() => WINS_RAW.filter(w =>
+    (region==="All"||w.region===region) &&
+    (spoc==="All"||w.spoc===spoc) &&
+    (service==="All"||w.service===service) &&
+    (year==="All"||w.year===+year)
+  ), [region,spoc,service,year]);
+
+  const allWinsUnfiltered = useMemo(() => WINS_RAW.filter(w =>
+    (region==="All"||w.region===region) &&
+    (spoc==="All"||w.spoc===spoc) &&
+    (service==="All"||w.service===service)
+  ), [region,spoc,service]);
+
+  const pipeline = useMemo(() => PIPELINE_RAW.filter(p =>
+    (region==="All"||p.region===region) &&
+    (spoc==="All"||p.spoc===spoc) &&
+    (service==="All"||p.service===service)
+  ), [region,spoc,service]);
+
+  const activePipeline = useMemo(() => pipeline.filter(p => ACTIVE_STAGES.includes(p.stage)), [pipeline]);
+
+  const regions = [...new Set(WINS_RAW.map(w=>w.region).concat(PIPELINE_RAW.map(p=>p.region)))].sort();
+  const spocs = [...new Set(WINS_RAW.map(w=>w.spoc).concat(PIPELINE_RAW.map(p=>p.spoc)))].filter(s=>s!=="Unassigned").sort();
+  const services = [...new Set(WINS_RAW.map(w=>w.service).concat(PIPELINE_RAW.map(p=>p.service)))].sort();
+  const years = [...new Set(WINS_RAW.map(w=>w.year))].sort();
+
+  // ─── KPI CALCULATIONS ──────────────────────────────────────────────────
+  const totalWins = wins.reduce((s,w)=>s+w.winUSD,0);
+  const dealCount = wins.length;
+  const grossPipeline = activePipeline.reduce((s,p)=>s+p.oppUSD,0);
+  const weightedPipeline = activePipeline.reduce((s,p)=>s+p.weightedUSD,0);
+  const proposalCount = activePipeline.filter(p=>p.stage==="Proposal Shared").length;
+
+  // Revenue Clocked to Date: sum of monthly values for months <= current month in the selected FY
+  const selectedFY = year !== "All" ? +year : NOW_YEAR;
+  const revClocked = useMemo(() => {
+    let total = 0;
+    allWinsUnfiltered.forEach(w => {
+      Object.entries(w.monthly).forEach(([mo,v]) => {
+        const p = parseMo(mo);
+        if(p.year === selectedFY && p.month <= NOW_MONTH) total += v;
+      });
+    });
+    return total;
+  }, [allWinsUnfiltered, selectedFY]);
+
+  // Backlog: future months in the same calendar year (selectedFY)
+  const backlogCurrentFY = useMemo(() => {
+    let total = 0;
+    allWinsUnfiltered.forEach(w => {
+      Object.entries(w.monthly).forEach(([mo,v]) => {
+        const p = parseMo(mo);
+        if(p.year === selectedFY && p.month > NOW_MONTH) total += v;
+      });
+    });
+    return total;
+  }, [allWinsUnfiltered, selectedFY]);
+
+  // Budget shortfall by region
+  const budgetShortfall = useMemo(() => {
+    if(!BUDGET_YEARS.includes(selectedFY)) return null;
+    const result = {};
+    const regionFilter = region === "All" ? regions : [region];
+    let totalBudget = 0, totalClocked = 0, totalBacklog = 0;
+    regionFilter.forEach(reg => {
+      if(!BUDGET[reg]) return;
+      let rc = 0, bl = 0;
+      allWinsUnfiltered.filter(w => w.region === reg).forEach(w => {
+        Object.entries(w.monthly).forEach(([mo,v]) => {
+          const p = parseMo(mo);
+          if(p.year === selectedFY && p.month <= NOW_MONTH) rc += v;
+          if(p.year === selectedFY && p.month > NOW_MONTH) bl += v;
+        });
+      });
+      result[reg] = { budget: BUDGET[reg], clocked: rc, backlog: bl, shortfall: BUDGET[reg] - rc - bl };
+      totalBudget += BUDGET[reg]; totalClocked += rc; totalBacklog += bl;
+    });
+    result._total = { budget: totalBudget, clocked: totalClocked, backlog: totalBacklog, shortfall: totalBudget - totalClocked - totalBacklog };
+    return result;
+  }, [allWinsUnfiltered, selectedFY, region, regions]);
+
+  // ─── MONTHLY REVENUE ──────────────────────────────────────────────────
+  const startMonth = useMemo(() => {
+    if(year !== "All") { return `Jan-${String(+year).slice(2)}`; }
+    return "Jan-25";
+  }, [year]);
+
+  const monthlyByRegion = useMemo(() => {
+    const startIdx = MONTHS_ORDER.indexOf(startMonth);
+    const months = MONTHS_ORDER.slice(startIdx >= 0 ? startIdx : 0);
+    const m = {};
+    months.forEach(mo => { m[mo] = {month:mo}; regions.forEach(r=>{m[mo][r]=0;}); });
+    allWinsUnfiltered.forEach(w => {
+      Object.entries(w.monthly).forEach(([k,v]) => {
+        if(m[k]) m[k][w.region]=(m[k][w.region]||0)+v;
+      });
+    });
+    return months.map(mo=>m[mo]).filter(d => {
+      const total = regions.reduce((s,r) => s+(d[r]||0), 0);
+      return total !== 0 || MONTHS_ORDER.indexOf(d.month) <= MONTHS_ORDER.indexOf("Dec-26");
+    });
+  }, [allWinsUnfiltered, regions, startMonth]);
+
+  const monthlyRev = useMemo(() => {
+    return monthlyByRegion.map(d => ({
+      month: d.month,
+      revenue: Math.round(regions.reduce((s,r) => s+(d[r]||0), 0))
+    }));
+  }, [monthlyByRegion, regions]);
+
+  // ─── BY SERVICE ────────────────────────────────────────────────────────
+  const byService = useMemo(() => {
+    const m = {};
+    wins.forEach(w => { m[w.service] = (m[w.service]||0)+w.winUSD; });
+    return Object.entries(m).map(([name,value])=>({name,value:Math.round(value)})).sort((a,b)=>b.value-a.value);
+  }, [wins]);
+
+  const byRegion = useMemo(() => {
+    const m = {};
+    wins.forEach(w => { m[w.region] = (m[w.region]||0)+w.winUSD; });
+    return Object.entries(m).map(([name,value])=>({name,value:Math.round(value)})).sort((a,b)=>b.value-a.value);
+  }, [wins]);
+
+  // ─── BY SPOC (Primary FT Lead only) ───────────────────────────────────
+  const bySPOC = useMemo(() => {
+    const m = {};
+    wins.forEach(w => {
+      const sp = w.spoc;
+      if(!m[sp]) m[sp]={wins:0,rev:0,backlog:0,deals:0};
+      m[sp].wins+=w.winUSD; m[sp].deals++;
+      Object.entries(w.monthly).forEach(([k,v]) => {
+        const p = parseMo(k);
+        if(p.year === selectedFY && p.month <= NOW_MONTH) m[sp].rev+=v;
+        if(p.year === selectedFY && p.month > NOW_MONTH) m[sp].backlog+=v;
+      });
+    });
+    return Object.entries(m).map(([name,d])=>({name,...d})).sort((a,b)=>b.wins-a.wins);
+  }, [wins, selectedFY]);
+
+  // ─── PIPELINE CALCULATIONS ─────────────────────────────────────────────
+  const pipeByStage = useMemo(() => {
+    const m = {};
+    pipeline.forEach(p => { if(!m[p.stage]) m[p.stage]={stage:p.stage,count:0,gross:0,weighted:0}; m[p.stage].count++; m[p.stage].gross+=p.oppUSD; m[p.stage].weighted+=p.weightedUSD; });
+    return Object.values(m).sort((a,b)=>b.gross-a.gross);
+  }, [pipeline]);
+
+  const pipeByService = useMemo(() => {
+    const m = {};
+    activePipeline.forEach(p => { m[p.service]=(m[p.service]||0)+p.weightedUSD; });
+    return Object.entries(m).map(([name,value])=>({name,value:Math.round(value)})).sort((a,b)=>b.value-a.value).filter(d=>d.value>0);
+  }, [activePipeline]);
+
+  const topClients = useMemo(() => {
+    const m = {};
+    wins.forEach(w => { m[w.client] = (m[w.client]||0)+w.winUSD; });
+    return Object.entries(m).map(([name,value])=>({name,value:Math.round(value)})).sort((a,b)=>b.value-a.value).slice(0,10);
+  }, [wins]);
+
+  // ─── PARTNER PERFORMANCE ───────────────────────────────────────────────
+  const byPartner = useMemo(() => {
+    const m = {};
+    wins.forEach(w => {
+      w.partner.split(",").map(s=>s.trim()).forEach(p => {
+        if(!m[p]) m[p]={name:p,wins:0,deals:0,pipeGross:0,pipeWeighted:0};
+        m[p].wins+=w.winUSD; m[p].deals++;
+      });
+    });
+    activePipeline.forEach(p => {
+      p.partner.split(",").map(s=>s.trim()).forEach(pt => {
+        if(!m[pt]) m[pt]={name:pt,wins:0,deals:0,pipeGross:0,pipeWeighted:0};
+        m[pt].pipeGross+=p.oppUSD; m[pt].pipeWeighted+=p.weightedUSD;
+      });
+    });
+    return Object.values(m).sort((a,b)=>(b.wins+b.pipeWeighted)-(a.wins+a.pipeWeighted));
+  }, [wins,activePipeline]);
+
+  // ─── DRILL COLUMN DEFS ────────────────────────────────────────────────
+  const DRILL_WIN_COLS = [
+    {key:"client",label:"Client"},{key:"desc",label:"Description"},{key:"service",label:"Service"},
+    {key:"winUSD",label:"Win Size (USD)",fmt:fmtFull},{key:"currency",label:"Currency"},
+    {key:"region",label:"Region"},{key:"location",label:"Location"},
+    {key:"spoc",label:"Primary FT Lead"},{key:"partner",label:"Engagement Partner"},
+    {key:"year",label:"Win Year"},{key:"winDate",label:"Win Date"},{key:"endDate",label:"End Date"}
+  ];
+  const DRILL_PIPE_COLS = [
+    {key:"client",label:"Client"},{key:"desc",label:"Description"},{key:"service",label:"Service"},
+    {key:"stage",label:"Stage"},{key:"oppUSD",label:"Opp Size (USD)",fmt:fmtFull},
+    {key:"prob",label:"Probability",fmt:v=>v?`${(v*100).toFixed(0)}%`:'—'},
+    {key:"weightedUSD",label:"Weighted (USD)",fmt:fmtFull},
+    {key:"region",label:"Region"},{key:"location",label:"Location"},
+    {key:"spoc",label:"Primary FT Lead"},{key:"partner",label:"Engagement Partner"},
+    {key:"oppDate",label:"Opp Date"}
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">UNIQUS FT — Leadership Dashboard</h1>
+              <p className="text-xs text-gray-500 mt-0.5">Finance Transformation Practice · All values in USD · Data as of Apr 2026</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Filter label="Region" options={regions} value={region} onChange={setRegion}/>
+              <Filter label="Primary FT SPOC" options={spocs} value={spoc} onChange={setSpoc}/>
+              <Filter label="Service" options={services} value={service} onChange={setService}/>
+              <Filter label="Win Year" options={years} value={year} onChange={setYear}/>
+            </div>
+          </div>
+          <div className="mt-3">
+            <Tab tabs={["Overview","Revenue","Pipeline","People","Deals"]} active={view} onChange={setView}/>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-6">
+
+        {/* ═══════════════ OVERVIEW ═══════════════ */}
+        {view==="Overview" && <>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            <KPI title="Total Wins" value={fmt(totalWins)} sub={`${dealCount} deals`} color="blue" onClick={()=>setDrill({title:"All Wins",data:wins,cols:DRILL_WIN_COLS})}/>
+            <KPI title={`Rev Clocked (${selectedFY})`} value={fmt(revClocked)} sub={`Jan–Apr ${selectedFY}`} color="green" onClick={()=>{
+              const detail = [];
+              allWinsUnfiltered.forEach(w => { let rc=0; Object.entries(w.monthly).forEach(([mo,v])=>{const p=parseMo(mo);if(p.year===selectedFY&&p.month<=NOW_MONTH) rc+=v;}); if(rc!==0) detail.push({...w,revClocked:rc}); });
+              setDrill({title:`Revenue Clocked ${selectedFY} (Jan–Apr)`,data:detail.sort((a,b)=>b.revClocked-a.revClocked),cols:[...DRILL_WIN_COLS,{key:"revClocked",label:"Rev Clocked",fmt:fmtFull}]});
+            }}/>
+            <KPI title={`Backlog (${selectedFY})`} value={fmt(backlogCurrentFY)} sub={`May–Dec ${selectedFY}`} color="purple" onClick={()=>{
+              const detail = [];
+              allWinsUnfiltered.forEach(w => { let bl=0; Object.entries(w.monthly).forEach(([mo,v])=>{const p=parseMo(mo);if(p.year===selectedFY&&p.month>NOW_MONTH) bl+=v;}); if(bl!==0) detail.push({...w,backlog:bl}); });
+              setDrill({title:`Backlog ${selectedFY} (May–Dec)`,data:detail.sort((a,b)=>b.backlog-a.backlog),cols:[...DRILL_WIN_COLS,{key:"backlog",label:"Backlog",fmt:fmtFull}]});
+            }}/>
+            <KPI title="Active Pipeline (Gross)" value={fmt(grossPipeline)} sub={`${activePipeline.length} opps`} color="amber" onClick={()=>setDrill({title:"Active Pipeline",data:activePipeline,cols:DRILL_PIPE_COLS})}/>
+            <KPI title="Weighted Pipeline" value={fmt(weightedPipeline)} color="cyan"/>
+            <KPI title="Proposals Out" value={proposalCount} sub={fmt(activePipeline.filter(p=>p.stage==="Proposal Shared").reduce((s,p)=>s+p.oppUSD,0))} color="rose" onClick={()=>setDrill({title:"Proposals Shared",data:activePipeline.filter(p=>p.stage==="Proposal Shared"),cols:DRILL_PIPE_COLS})}/>
+          </div>
+
+          {/* Budget Shortfall */}
+          {budgetShortfall && <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">FY {selectedFY} Budget vs Actuals — Shortfall Analysis</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {Object.entries(budgetShortfall).filter(([k])=>k!=="_total").map(([reg,d])=>(
+                <div key={reg} className="border border-gray-200 rounded-lg p-4">
+                  <div className="text-sm font-semibold text-gray-800 mb-2">{reg}</div>
+                  <div className="space-y-1 text-xs text-gray-600">
+                    <div className="flex justify-between"><span>Budget</span><span className="font-medium">{fmtFull(d.budget)}</span></div>
+                    <div className="flex justify-between"><span>Rev Clocked</span><span className="font-medium text-green-600">{fmtFull(d.clocked)}</span></div>
+                    <div className="flex justify-between"><span>Backlog (FY)</span><span className="font-medium text-blue-600">{fmtFull(d.backlog)}</span></div>
+                    <div className="flex justify-between border-t pt-1 mt-1"><span className="font-semibold">Shortfall</span><span className="font-bold text-red-600">{fmtFull(d.shortfall)}</span></div>
+                  </div>
+                  <div className="mt-2 w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="h-2.5 rounded-full bg-gradient-to-r from-green-400 to-blue-500" style={{width:`${Math.min(100,((d.clocked+d.backlog)/d.budget)*100)}%`}}/>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{((d.clocked+d.backlog)/d.budget*100).toFixed(0)}% of budget covered</div>
+                </div>
+              ))}
+              {region==="All" && budgetShortfall._total && (
+                <div className="border-2 border-gray-300 rounded-lg p-4 bg-gray-50">
+                  <div className="text-sm font-semibold text-gray-800 mb-2">TOTAL</div>
+                  <div className="space-y-1 text-xs text-gray-600">
+                    <div className="flex justify-between"><span>Budget</span><span className="font-medium">{fmtFull(budgetShortfall._total.budget)}</span></div>
+                    <div className="flex justify-between"><span>Rev Clocked</span><span className="font-medium text-green-600">{fmtFull(budgetShortfall._total.clocked)}</span></div>
+                    <div className="flex justify-between"><span>Backlog (FY)</span><span className="font-medium text-blue-600">{fmtFull(budgetShortfall._total.backlog)}</span></div>
+                    <div className="flex justify-between border-t pt-1 mt-1"><span className="font-semibold">Shortfall</span><span className="font-bold text-red-600">{fmtFull(budgetShortfall._total.shortfall)}</span></div>
+                  </div>
+                  <div className="mt-2 w-full bg-gray-100 rounded-full h-2.5">
+                    <div className="h-2.5 rounded-full bg-gradient-to-r from-green-400 to-blue-500" style={{width:`${Math.min(100,((budgetShortfall._total.clocked+budgetShortfall._total.backlog)/budgetShortfall._total.budget)*100)}%`}}/>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">{((budgetShortfall._total.clocked+budgetShortfall._total.backlog)/budgetShortfall._total.budget*100).toFixed(0)}% covered</div>
+                </div>
+              )}
+            </div>
+          </div>}
+
+          {/* Revenue trend + Region pie */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="lg:col-span-2 bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Monthly Revenue (Stacked by Region){year!=="All"?` — Starting Jan ${year}`:''}</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={monthlyByRegion}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis dataKey="month" tick={{fontSize:10}} interval={1}/>
+                  <YAxis tick={{fontSize:10}} tickFormatter={fmt}/>
+                  <Tooltip content={<CT/>}/>
+                  <Legend wrapperStyle={{fontSize:12}}/>
+                  {regions.map((r,i)=><Bar key={r} dataKey={r} stackId="a" fill={COLORS[i%COLORS.length]} radius={i===regions.length-1?[2,2,0,0]:[0,0,0,0]}/>)}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Wins by Region</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie data={byRegion} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({name,percent})=>`${name} ${(percent*100).toFixed(0)}%`} labelLine={false}>
+                    {byRegion.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
+                  </Pie>
+                  <Tooltip formatter={fmtFull}/>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Wins by Service Offering</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={byService.slice(0,10)} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis type="number" tickFormatter={fmt} tick={{fontSize:10}}/>
+                  <YAxis type="category" dataKey="name" width={140} tick={{fontSize:10}}/>
+                  <Tooltip formatter={fmtFull}/>
+                  <Bar dataKey="value" fill="#2563eb" radius={[0,4,4,0]} name="Win Value" onClick={(_,idx)=>{const svc=byService[idx]?.name; if(svc){setDrill({title:`Wins: ${svc}`,data:wins.filter(w=>w.service===svc),cols:DRILL_WIN_COLS});}}}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Top 10 Clients by Win Value</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topClients} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis type="number" tickFormatter={fmt} tick={{fontSize:10}}/>
+                  <YAxis type="category" dataKey="name" width={130} tick={{fontSize:10}}/>
+                  <Tooltip formatter={fmtFull}/>
+                  <Bar dataKey="value" fill="#10b981" radius={[0,4,4,0]} name="Win Value" onClick={(_,idx)=>{const cl=topClients[idx]?.name; if(cl){setDrill({title:`Wins: ${cl}`,data:wins.filter(w=>w.client===cl),cols:DRILL_WIN_COLS});}}}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </>}
+
+        {/* ═══════════════ REVENUE ═══════════════ */}
+        {view==="Revenue" && <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <KPI title={`Rev Clocked (${selectedFY})`} value={fmt(revClocked)} sub={`Jan–Apr ${selectedFY}`} color="blue"/>
+            <KPI title={`Backlog (${selectedFY})`} value={fmt(backlogCurrentFY)} sub={`May–Dec ${selectedFY}`} color="green"/>
+            <KPI title="Peak Month" value={monthlyRev.length?monthlyRev.reduce((a,b)=>b.revenue>a.revenue?b:a).month:'—'} sub={monthlyRev.length?fmt(monthlyRev.reduce((a,b)=>b.revenue>a.revenue?b:a).revenue):'—'} color="amber"/>
+            <KPI title={`Full Year ${selectedFY}`} value={fmt(revClocked+backlogCurrentFY)} sub="Clocked + Backlog" color="purple"/>
+          </div>
+
+          {budgetShortfall && <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">Budget Shortfall — FY {selectedFY}</h3>
+            <div className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50">
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Region</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Annual Budget</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Rev Clocked</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Backlog (FY)</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Covered</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Shortfall</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Coverage %</th>
+                </tr></thead>
+                <tbody>
+                  {Object.entries(budgetShortfall).filter(([k])=>k!=="_total").map(([reg,d],i)=>(
+                    <tr key={reg} className="border-t border-gray-100 hover:bg-blue-50">
+                      <td className="py-2 px-3 font-medium">{reg}</td>
+                      <td className="py-2 px-3 text-right">{fmtFull(d.budget)}</td>
+                      <td className="py-2 px-3 text-right text-green-600">{fmtFull(d.clocked)}</td>
+                      <td className="py-2 px-3 text-right text-blue-600">{fmtFull(d.backlog)}</td>
+                      <td className="py-2 px-3 text-right">{fmtFull(d.clocked+d.backlog)}</td>
+                      <td className="py-2 px-3 text-right font-bold text-red-600">{fmtFull(d.shortfall)}</td>
+                      <td className="py-2 px-3 text-right">{((d.clocked+d.backlog)/d.budget*100).toFixed(0)}%</td>
+                    </tr>
+                  ))}
+                  {budgetShortfall._total && <tr className="border-t-2 border-gray-300 bg-gray-50 font-semibold">
+                    <td className="py-2 px-3">TOTAL</td>
+                    <td className="py-2 px-3 text-right">{fmtFull(budgetShortfall._total.budget)}</td>
+                    <td className="py-2 px-3 text-right text-green-600">{fmtFull(budgetShortfall._total.clocked)}</td>
+                    <td className="py-2 px-3 text-right text-blue-600">{fmtFull(budgetShortfall._total.backlog)}</td>
+                    <td className="py-2 px-3 text-right">{fmtFull(budgetShortfall._total.clocked+budgetShortfall._total.backlog)}</td>
+                    <td className="py-2 px-3 text-right font-bold text-red-600">{fmtFull(budgetShortfall._total.shortfall)}</td>
+                    <td className="py-2 px-3 text-right">{((budgetShortfall._total.clocked+budgetShortfall._total.backlog)/budgetShortfall._total.budget*100).toFixed(0)}%</td>
+                  </tr>}
+                </tbody>
+              </table>
+            </div>
+          </div>}
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Revenue Trend — Month on Month{year!=="All"?` (from Jan ${year})`:''}</h3>
+            <ResponsiveContainer width="100%" height={320}>
+              <LineChart data={monthlyRev}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                <XAxis dataKey="month" tick={{fontSize:10}} interval={1}/>
+                <YAxis tick={{fontSize:10}} tickFormatter={fmt}/>
+                <Tooltip content={<CT/>}/>
+                <Line type="monotone" dataKey="revenue" stroke="#2563eb" strokeWidth={2.5} dot={{r:3}} name="Revenue"/>
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Revenue by Region (Stacked)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={monthlyByRegion}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis dataKey="month" tick={{fontSize:9}} interval={2}/>
+                  <YAxis tick={{fontSize:10}} tickFormatter={fmt}/>
+                  <Tooltip content={<CT/>}/>
+                  <Legend wrapperStyle={{fontSize:11}}/>
+                  {regions.map((r,i)=><Bar key={r} dataKey={r} stackId="a" fill={COLORS[i%COLORS.length]}/>)}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Revenue by Service (Pie)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie data={byService.filter(d=>d.value>0)} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label={({name,percent})=>percent>0.05?`${name.slice(0,15)} ${(percent*100).toFixed(0)}%`:''}>
+                    {byService.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
+                  </Pie>
+                  <Tooltip formatter={fmtFull}/>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Revenue by Primary FT SPOC</h3>
+            <div className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50"><th className="text-left py-2 px-3 font-semibold text-gray-600">SPOC</th><th className="text-right py-2 px-3 font-semibold text-gray-600">Total Wins</th><th className="text-right py-2 px-3 font-semibold text-gray-600">Rev Clocked ({selectedFY})</th><th className="text-right py-2 px-3 font-semibold text-gray-600">Backlog ({selectedFY})</th><th className="text-right py-2 px-3 font-semibold text-gray-600">Deals</th></tr></thead>
+                <tbody>{bySPOC.map((s,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50 cursor-pointer" onClick={()=>{if(s.name!=="Unassigned"){setSpoc(s.name);} setView("Deals");}}>
+                  <td className="py-2 px-3 font-medium text-gray-800">{s.name}</td>
+                  <td className="py-2 px-3 text-right">{fmtFull(s.wins)}</td>
+                  <td className="py-2 px-3 text-right text-green-600">{fmtFull(s.rev)}</td>
+                  <td className="py-2 px-3 text-right text-blue-600">{fmtFull(s.backlog)}</td>
+                  <td className="py-2 px-3 text-right">{s.deals}</td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </>}
+
+        {/* ═══════════════ PIPELINE ═══════════════ */}
+        {view==="Pipeline" && <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <KPI title="Total Pipeline (Gross)" value={fmt(pipeline.reduce((s,p)=>s+p.oppUSD,0))} sub={`${pipeline.length} opps`} color="blue"/>
+            <KPI title="Active Pipeline" value={fmt(grossPipeline)} sub={`${activePipeline.length} active`} color="green" onClick={()=>setDrill({title:"Active Pipeline",data:activePipeline,cols:DRILL_PIPE_COLS})}/>
+            <KPI title="Weighted Value" value={fmt(weightedPipeline)} color="purple"/>
+            <KPI title="Proposals Pending" value={proposalCount} sub={fmt(activePipeline.filter(p=>p.stage==="Proposal Shared").reduce((s,p)=>s+p.oppUSD,0))} color="amber" onClick={()=>setDrill({title:"Proposals Shared",data:activePipeline.filter(p=>p.stage==="Proposal Shared"),cols:DRILL_PIPE_COLS})}/>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Pipeline by Stage</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={pipeByStage}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis dataKey="stage" tick={{fontSize:9}}/>
+                  <YAxis tick={{fontSize:10}} tickFormatter={fmt}/>
+                  <Tooltip content={<CT/>}/>
+                  <Legend wrapperStyle={{fontSize:11}}/>
+                  <Bar dataKey="gross" fill="#f59e0b" name="Gross Value" radius={[4,4,0,0]} onClick={(_,idx)=>{const st=pipeByStage[idx]?.stage; if(st) setDrill({title:`Pipeline: ${st}`,data:pipeline.filter(p=>p.stage===st),cols:DRILL_PIPE_COLS});}}/>
+                  <Bar dataKey="weighted" fill="#8b5cf6" name="Weighted Value" radius={[4,4,0,0]}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Active Pipeline by Service (Weighted)</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={pipeByService} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                  <XAxis type="number" tickFormatter={fmt} tick={{fontSize:10}}/>
+                  <YAxis type="category" dataKey="name" width={160} tick={{fontSize:10}}/>
+                  <Tooltip formatter={fmtFull}/>
+                  <Bar dataKey="value" fill="#8b5cf6" radius={[0,4,4,0]} name="Weighted Pipeline" onClick={(_,idx)=>{const svc=pipeByService[idx]?.name; if(svc) setDrill({title:`Pipeline: ${svc}`,data:activePipeline.filter(p=>p.service===svc),cols:DRILL_PIPE_COLS});}}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Active Pipeline by Region</h3>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={(() => { const m={}; activePipeline.forEach(p=>{m[p.region]=(m[p.region]||0)+p.weightedUSD;}); return Object.entries(m).map(([name,value])=>({name,value:Math.round(value)})).filter(d=>d.value>0); })()} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} label={({name,percent})=>`${name} ${(percent*100).toFixed(0)}%`}>
+                    {regions.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
+                  </Pie>
+                  <Tooltip formatter={fmtFull}/>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-semibold text-gray-700 mb-4">Stage Distribution</h3>
+              <div className="space-y-3 mt-2">
+                {pipeByStage.map((s,i) => {
+                  const maxCount = Math.max(...pipeByStage.map(x=>x.count));
+                  return (
+                    <div key={i} className="cursor-pointer hover:bg-gray-50 rounded p-2" onClick={()=>setDrill({title:`Pipeline: ${s.stage}`,data:pipeline.filter(p=>p.stage===s.stage),cols:DRILL_PIPE_COLS})}>
+                      <div className="flex justify-between text-sm mb-1"><span className="font-medium text-gray-700">{s.stage}</span><span className="text-gray-500">{s.count} opps · {fmt(s.gross)}</span></div>
+                      <div className="w-full bg-gray-100 rounded-full h-2"><div className="h-2 rounded-full" style={{width:`${(s.count/maxCount)*100}%`,background:COLORS[i%COLORS.length]}}/></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </>}
+
+        {/* ═══════════════ PEOPLE ═══════════════ */}
+        {view==="People" && <>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <KPI title="Top SPOC (Wins)" value={bySPOC.filter(s=>s.name!=="Unassigned")[0]?.name||'—'} sub={fmt(bySPOC.filter(s=>s.name!=="Unassigned")[0]?.wins||0)} color="blue"/>
+            <KPI title="Active SPOCs" value={bySPOC.filter(s=>s.name!=="Unassigned"&&s.wins>0).length} color="green"/>
+            <KPI title="Unassigned SPOC Wins" value={fmt(wins.filter(w=>w.spoc==="Unassigned").reduce((s,w)=>s+w.winUSD,0))} sub={`${wins.filter(w=>w.spoc==="Unassigned").length} deals`} color="rose" onClick={()=>setDrill({title:"Unassigned SPOC Wins",data:wins.filter(w=>w.spoc==="Unassigned"),cols:DRILL_WIN_COLS})}/>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Primary FT SPOC Performance — Wins vs Revenue Clocked vs Backlog</h3>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={bySPOC.filter(s=>s.name!=="Unassigned")} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0"/>
+                <XAxis type="number" tickFormatter={fmt} tick={{fontSize:10}}/>
+                <YAxis type="category" dataKey="name" width={100} tick={{fontSize:11}}/>
+                <Tooltip content={<CT/>}/>
+                <Legend wrapperStyle={{fontSize:11}}/>
+                <Bar dataKey="wins" fill="#2563eb" name="Total Wins" radius={[0,2,2,0]}/>
+                <Bar dataKey="rev" fill="#10b981" name={`Rev Clocked (${selectedFY})`} radius={[0,2,2,0]}/>
+                <Bar dataKey="backlog" fill="#f59e0b" name={`Backlog (${selectedFY})`} radius={[0,2,2,0]}/>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Primary FT SPOC Detail</h3>
+            <div className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50">
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">SPOC</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Total Wins</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Deals</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Rev Clocked</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Backlog</th>
+                </tr></thead>
+                <tbody>{bySPOC.map((s,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50 cursor-pointer" onClick={()=>{
+                  const deals = wins.filter(w=>w.spoc===s.name).map(w=>{
+                    let rc=0,bl=0; Object.entries(w.monthly).forEach(([mo,v])=>{const p=parseMo(mo);if(p.year===selectedFY&&p.month<=NOW_MONTH)rc+=v;if(p.year===selectedFY&&p.month>NOW_MONTH)bl+=v;});
+                    return {...w,revClocked:rc,backlog:bl};
+                  });
+                  setDrill({title:`SPOC: ${s.name} — Deals`,data:deals,cols:[...DRILL_WIN_COLS,{key:"revClocked",label:`Rev Clocked (${selectedFY})`,fmt:fmtFull},{key:"backlog",label:`Backlog (${selectedFY})`,fmt:fmtFull}]});
+                }}>
+                  <td className="py-2 px-3 font-medium text-gray-800">{s.name}</td>
+                  <td className="py-2 px-3 text-right">{fmtFull(s.wins)}</td>
+                  <td className="py-2 px-3 text-right">{s.deals}</td>
+                  <td className="py-2 px-3 text-right text-green-600">{fmtFull(s.rev)}</td>
+                  <td className="py-2 px-3 text-right text-blue-600">{fmtFull(s.backlog)}</td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Engagement Partner — Wins + Active Pipeline</h3>
+            <div className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead><tr className="bg-gray-50">
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Partner</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Wins (USD)</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Deals Won</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Active Pipe (Gross)</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Active Pipe (Wtd)</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Total (Wins+Wtd)</th>
+                </tr></thead>
+                <tbody>{byPartner.filter(p=>p.wins>0||p.pipeGross>0).map((p,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50 cursor-pointer" onClick={()=>{
+                  const pWins = wins.filter(w=>w.partner.includes(p.name));
+                  const pPipe = activePipeline.filter(pp=>pp.partner.includes(p.name));
+                  setDrill({title:`Partner: ${p.name}`,data:[...pWins.map(w=>({...w,type:'Win',stage:'Won'})),...pPipe.map(pp=>({...pp,type:'Pipeline',winUSD:pp.oppUSD,winDate:pp.oppDate}))],cols:[{key:"type",label:"Type"},{key:"client",label:"Client"},{key:"desc",label:"Description"},{key:"service",label:"Service"},{key:"winUSD",label:"Value (USD)",fmt:fmtFull},{key:"stage",label:"Stage"},{key:"region",label:"Region"},{key:"spoc",label:"SPOC"}]});
+                }}>
+                  <td className="py-2 px-3 font-medium text-gray-800">{p.name}</td>
+                  <td className="py-2 px-3 text-right">{fmtFull(p.wins)}</td>
+                  <td className="py-2 px-3 text-right">{p.deals}</td>
+                  <td className="py-2 px-3 text-right">{fmtFull(p.pipeGross)}</td>
+                  <td className="py-2 px-3 text-right">{fmtFull(p.pipeWeighted)}</td>
+                  <td className="py-2 px-3 text-right font-semibold text-blue-600">{fmtFull(p.wins+p.pipeWeighted)}</td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </>}
+
+        {/* ═══════════════ DEALS ═══════════════ */}
+        {view==="Deals" && <>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Won Deals ({wins.length})</h3>
+            <div className="overflow-auto max-h-[50vh]">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0"><tr className="bg-gray-50">
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Client</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Description</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Service</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Win Size (USD)</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Region</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Location</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Primary FT SPOC</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Partner</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Win Date</th>
+                  <th className="text-center py-2 px-3 font-semibold text-gray-600">Year</th>
+                </tr></thead>
+                <tbody>{[...wins].sort((a,b)=>b.winUSD-a.winUSD).map((w,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50 cursor-pointer" onClick={()=>{
+                  const rc=[]; let tot=0; Object.entries(w.monthly).forEach(([mo,v])=>{rc.push({month:mo,revenue:v});tot+=v;});
+                  rc.push({month:'TOTAL',revenue:tot});
+                  setDrill({title:`${w.client} — ${w.desc||w.service} — Monthly Revenue`,data:rc,cols:[{key:"month",label:"Month"},{key:"revenue",label:"Revenue (USD)",fmt:v=>fmtFull(v)}]});
+                }}>
+                  <td className="py-2 px-3 font-medium text-gray-800 whitespace-nowrap">{w.client}</td>
+                  <td className="py-2 px-3 text-gray-600 max-w-xs truncate" title={w.desc}>{w.desc||'—'}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{w.service}</td>
+                  <td className="py-2 px-3 text-right font-medium whitespace-nowrap">{fmtFull(w.winUSD)}</td>
+                  <td className="py-2 px-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${w.region==='ME'?'bg-amber-100 text-amber-700':w.region==='India'?'bg-blue-100 text-blue-700':'bg-green-100 text-green-700'}`}>{w.region}</span></td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{w.location}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{w.spoc}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{w.partner}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{w.winDate||'—'}</td>
+                  <td className="py-2 px-3 text-center">{w.year}</td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+            <h3 className="text-sm font-semibold text-gray-700 mb-4">Active Pipeline ({activePipeline.length})</h3>
+            <div className="overflow-auto max-h-[50vh]">
+              <table className="w-full text-sm">
+                <thead className="sticky top-0"><tr className="bg-gray-50">
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Client</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Description</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Service</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Stage</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Opp Size (USD)</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Prob</th>
+                  <th className="text-right py-2 px-3 font-semibold text-gray-600">Weighted (USD)</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Region</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Location</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Primary FT SPOC</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Partner</th>
+                  <th className="text-left py-2 px-3 font-semibold text-gray-600">Opp Date</th>
+                </tr></thead>
+                <tbody>{[...activePipeline].sort((a,b)=>b.oppUSD-a.oppUSD).map((p,i)=><tr key={i} className="border-t border-gray-100 hover:bg-blue-50">
+                  <td className="py-2 px-3 font-medium text-gray-800 whitespace-nowrap">{p.client}</td>
+                  <td className="py-2 px-3 text-gray-600 max-w-xs truncate" title={p.desc}>{p.desc||'—'}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{p.service}</td>
+                  <td className="py-2 px-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.stage==='Proposal Shared'?'bg-purple-100 text-purple-700':'bg-gray-100 text-gray-600'}`}>{p.stage}</span></td>
+                  <td className="py-2 px-3 text-right font-medium whitespace-nowrap">{fmtFull(p.oppUSD)}</td>
+                  <td className="py-2 px-3 text-right">{p.prob?`${(p.prob*100).toFixed(0)}%`:'—'}</td>
+                  <td className="py-2 px-3 text-right whitespace-nowrap">{fmtFull(p.weightedUSD)}</td>
+                  <td className="py-2 px-3"><span className={`px-2 py-0.5 rounded-full text-xs font-medium ${p.region==='ME'?'bg-amber-100 text-amber-700':p.region==='India'?'bg-blue-100 text-blue-700':'bg-green-100 text-green-700'}`}>{p.region}</span></td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{p.location}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{p.spoc}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{p.partner}</td>
+                  <td className="py-2 px-3 text-gray-600 whitespace-nowrap">{p.oppDate||'—'}</td>
+                </tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </>}
+      </div>
+
+      {drill && <DrillModal {...drill} onClose={()=>setDrill(null)}/>}
+    </div>
+  );
+}
+
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Dashboard />);
+  </script>
+</body>
+</html>
